@@ -1,0 +1,9 @@
+{
+  "name": "OMNIAGENT",
+  "description": "Advanced proactive intelligence architecture with multi-domain synthesis and Ghost-Hash memory grounding.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera",
+    "display-capture"
+  ]
+}
