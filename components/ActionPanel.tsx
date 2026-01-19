@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Terminal, AppWindow, MousePointer, Image as ImageIcon, StickyNote, Trash2, Video, Mail, Volume2, Command, Globe, Database, ScanEye, Cpu, Presentation, FileText, Monitor, Music, PenLine, Binary } from 'lucide-react';
-import { AgentAction } from '../types';
+import { AgentAction } from '../types.ts';
 
 interface ActionPanelProps {
   actions: AgentAction[];

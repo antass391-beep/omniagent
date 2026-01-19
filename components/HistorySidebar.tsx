@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { MessageSquare, Plus, Clock, ChevronRight, Trash2 } from 'lucide-react';
-import { ChatSession } from '../types';
+import { ChatSession } from '../types.ts';
 
 interface HistorySidebarProps {
   sessions: ChatSession[];

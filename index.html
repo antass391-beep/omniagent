@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OmniAgent | Leap 71 Engineering</title>
+    <title>OmniAgent | Perplexity Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -15,7 +15,7 @@
         --citadel-border: rgba(255, 255, 255, 0.08);
         --citadel-border-bright: rgba(255, 255, 255, 0.15);
         --citadel-flare: #ffffff;
-        --citadel-accent: #3b82f6;
+        --citadel-accent: #22d3ee;
         --citadel-text: #f8fafc;
         --citadel-subtext: #71717a;
         --citadel-card: rgba(12, 12, 14, 0.8);
@@ -25,40 +25,40 @@
       }
 
       [data-theme='light'] {
-        --citadel-bg: #f8fafc;
+        --citadel-bg: #f3f4f6;
         --citadel-sidebar: #ffffff;
-        --citadel-inner-bg: #f1f5f9;
-        --citadel-border: rgba(15, 23, 42, 0.1);
-        --citadel-border-bright: rgba(15, 23, 42, 0.2);
-        --citadel-flare: #0f172a;
-        --citadel-accent: #2563eb;
-        --citadel-text: #0f172a;
-        --citadel-subtext: #64748b;
+        --citadel-inner-bg: #f9fafb;
+        --citadel-border: rgba(0, 0, 0, 0.08);
+        --citadel-border-bright: rgba(0, 0, 0, 0.15);
+        --citadel-flare: #111827;
+        --citadel-accent: #0ea5e9;
+        --citadel-text: #1f2937;
+        --citadel-subtext: #6b7280;
         --citadel-card: rgba(255, 255, 255, 0.95);
-        --citadel-input: rgba(15, 23, 42, 0.05);
-        --citadel-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
-        --citadel-hover: rgba(15, 23, 42, 0.05);
+        --citadel-input: rgba(0, 0, 0, 0.03);
+        --citadel-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        --citadel-hover: rgba(0, 0, 0, 0.03);
+      }
+
+      /* CRITICAL FIX FOR IFRAME RENDERING */
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: var(--citadel-bg);
       }
 
       body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--citadel-bg);
         color: var(--citadel-text);
-        overflow: hidden;
-        margin: 0;
         transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1), color 0.5s ease;
       }
 
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: rgba(128, 128, 128, 0.2); 
-        border-radius: 10px;
-      }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: var(--citadel-border-bright); border-radius: 10px; }
 
       .glass-card {
         background: var(--citadel-card);
@@ -66,83 +66,28 @@
         border: 1px solid var(--citadel-border);
         box-shadow: var(--citadel-shadow);
       }
-
-      .text-glow-blue {
-        text-shadow: 0 0 25px rgba(59, 130, 246, 0.5);
-      }
-
-      @keyframes spin-slow {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-      .animate-spin-slow {
-        animation: spin-slow 12s linear infinite;
-      }
-
-      @keyframes loading-bar {
-        0% {
-          left: -200%;
-          width: 200%;
-        }
-        100% {
-          left: 100%;
-          width: 100%;
-        }
-      }
-      .global-loading-bar {
-        position: absolute;
-        top: 0;
-        left: -200%; /* Start off-screen to the left */
-        width: 200%; /* Wider than screen for sweep effect */
-        height: 3px;
-        background: linear-gradient(90deg, transparent, var(--citadel-accent), transparent);
-        animation: loading-bar 1.5s infinite linear;
-        z-index: 50;
-      }
-
-      @keyframes pulse-dot {
-        0%, 100% { opacity: 0.3; }
-        50% { opacity: 1; }
-      }
-      .pulsing-dot {
-        display: inline-block;
-        width: 5px;
-        height: 5px;
-        border-radius: 50%;
-        animation: pulse-dot 1.4s infinite ease-in-out both;
-      }
-
-      .pulsing-dot:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-
-      .pulsing-dot:nth-child(3) {
-        animation-delay: 0.4s;
-      }
     </style>
-    <script type="importmap">
+<script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.460.0?alias=react:https://esm.sh/react@18.2.0,react-dom:https://esm.sh/react-dom@18.2.0&pin=v135",
-    "react-markdown": "https://esm.sh/react-markdown@9.0.1?alias=react:https://esm.sh/react@18.2.0,react-dom:https://esm.sh/react-dom@18.2.0&pin=v135",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
-    "three": "https://esm.sh/three@0.170.0",
-    "three/examples/jsm/controls/OrbitControls": "https://esm.sh/three@0.170.0/examples/jsm/controls/OrbitControls",
-    "three/examples/jsm/exporters/GLTFExporter": "https://esm.sh/three@0.170.0/examples/jsm/exporters/GLTFExporter",
-    "recharts": "https://esm.sh/recharts@^3.6.0?alias=react:https://esm.sh/react@18.2.0,react-dom:https://esm.sh/react-dom@18.2.0&pin=v135",
-    "mathjs": "https://esm.sh/mathjs@14.0.1",
-    "three/": "https://esm.sh/three@0.170.0/",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "three/": "https://esm.sh/three@^0.182.0/",
+    "three": "https://esm.sh/three@^0.182.0",
+    "three/examples/jsm/controls/OrbitControls": "https://esm.sh/three@^0.182.0/examples/jsm/controls/OrbitControls.js",
+    "recharts": "https://esm.sh/recharts@^3.6.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
-    <script type="module" src="index.tsx"></script>
-  </head>
+</head>
   <body>
     <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
   </body>
 </html>

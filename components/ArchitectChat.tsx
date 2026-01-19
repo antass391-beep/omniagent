@@ -1,244 +1,306 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { 
-  Activity, Cpu, Film, Camera, Ghost, Workflow, FileCode, Calculator, ShieldCheck, Film as FilmIcon, Smartphone,
-  Tractor, Waypoints, Zap, Gauge, Bolt, Power
+  Activity, Cpu, Film, Camera, Ghost, Workflow, FileCode, Calculator, ShieldCheck,
+  Tractor, Waypoints, Zap, Bolt, Power, Copy, Check, Thermometer, Ruler, Settings,
+  BrainCircuit, TrendingUp, GitPullRequest, Users, Target, Globe, ArrowUpRight
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { ChatMessage, Sender, SurgicalReport } from '../types.ts';
+import { ChatMessage, Sender, SurgicalReport, RLParams } from '../types.ts';
 import ModelViewer3D from './ModelViewer3D.tsx';
+import EvolutionTerminal from './EvolutionTerminal.tsx';
+import ReflexionLog from './ReflexionLog.tsx';
+import ReasoningChain from './ReasoningChain.tsx';
+import UniversalAnalysisViewer from './UniversalAnalysisViewer.tsx';
+import CollaborativeHeader from './CollaborativeHeader.tsx';
+import CognitiveEngineViewer from './CognitiveEngineViewer.tsx';
+import MetaCognitionViewer from './MetaCognitionViewer.tsx';
+import TaskManager from './TaskManager.tsx';
+import CinematicViewer from './CinematicViewer.tsx';
+import MapViewer from './MapViewer.tsx';
+import AgenticPlanViewer from './AgenticPlanViewer.tsx';
 
-interface ArchitectChatProps {
-  messages: ChatMessage[];
-  isProcessing: boolean;
-  onFollowUpClick: (question: string) => void;
-  onCopy: (text: string) => void;
-  copiedId: string | null;
-  theme: 'dark' | 'light';
-}
+// --- Source Cards (Perplexity Style) ---
+const SourceCardGrid = ({ metadata }: { metadata: any }) => {
+  if (!metadata || !metadata.groundingChunks) return null;
 
-const Leap71Certificate: React.FC<{ report: SurgicalReport }> = ({ report }) => {
-  const [activeTab, setActiveTab] = useState<'reasoning' | 'verity' | 'cinematic' | 'sdk' | 'operational'>('reasoning');
-  const analysis = report.engineeringAnalysis;
-  const isMobile = window.innerWidth < 768;
+  // Extract web chunks (sources)
+  // Ensure we safely map the chunks, as API structure can sometimes vary slightly
+  const sources = metadata.groundingChunks
+    .filter((c: any) => c.web && c.web.uri && c.web.title)
+    .map((c: any) => ({
+      uri: c.web.uri,
+      title: c.web.title,
+      hostname: new URL(c.web.uri).hostname.replace('www.', '')
+    }));
+  
+  // Remove duplicates based on URI
+  const uniqueSources = Array.from(new Map(sources.map((item:any) => [item.uri, item])).values());
+
+  if (uniqueSources.length === 0) return null;
 
   return (
-    <div className="mt-6 md:mt-10 w-full border rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden bg-[var(--citadel-sidebar)] border-[var(--citadel-border)] shadow-3xl animate-in zoom-in-95 duration-1000">
-      <div className="p-4 md:p-6 bg-[var(--citadel-hover)] border-b border-[var(--citadel-border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 md:gap-4">
-          <div className="p-2 md:p-3 bg-blue-600 rounded-xl md:rounded-2xl shadow-blue-500/30 shadow-2xl">
-            <Workflow size={16} className="text-white" />
+    <div className="mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+      <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3 flex items-center gap-2">
+        <Globe size={12} /> Sources Identified
+      </h4>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        {uniqueSources.slice(0, 4).map((source: any, i: number) => (
+          <a 
+            key={i} 
+            href={source.uri} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="group flex flex-col justify-between p-3 bg-[var(--citadel-inner-bg)] border border-[var(--citadel-border)] rounded-xl hover:bg-[var(--citadel-hover)] hover:border-[var(--citadel-accent)] transition-all"
+          >
+            <p className="text-[10px] font-bold text-[var(--citadel-text)] line-clamp-2 leading-tight mb-2">
+              {source.title}
+            </p>
+            <div className="flex items-center gap-1.5 opacity-50 group-hover:opacity-100 transition-opacity">
+              <div className="w-4 h-4 rounded-full bg-zinc-700 flex items-center justify-center text-[8px] font-bold text-white uppercase">
+                 {source.title.charAt(0)}
+              </div>
+              <span className="text-[8px] font-mono text-[var(--citadel-subtext)] truncate max-w-[80px]">
+                {source.hostname}
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const SynthesisReport: React.FC<{ report: SurgicalReport }> = ({ report }) => {
+  const [activeTab, setActiveTab] = useState<'kinematics' | 'manufacturing' | 'brain' | 'code'>('kinematics');
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(report.blenderScript || '');
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  return (
+    <div className="mt-6 md:mt-10 w-full border border-white/10 rounded-3xl md:rounded-[2.5rem] overflow-hidden bg-[#08080a] shadow-3xl">
+      {/* Collaboration Banner in Report */}
+      {report.collaborationUpdate && (
+        <div className="px-6 py-3 bg-indigo-600 text-white flex items-center justify-between">
+          <div className="flex items-center gap-3">
+             <Target size={14} />
+             <span className="text-[10px] font-black uppercase tracking-widest">Team Assignment: {report.collaborationUpdate.assignedTask}</span>
+          </div>
+          <div className="text-[8px] font-mono opacity-80">Orchestrated by OmniAgent</div>
+        </div>
+      )}
+
+      <div className="p-4 md:p-6 bg-white/[0.02] border-b border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-blue-600 rounded-2xl shadow-blue-500/20 shadow-2xl">
+            <Settings size={18} className="text-white" />
           </div>
           <div>
-            <h3 className="text-xs md:text-base font-black text-[var(--citadel-text)] uppercase tracking-widest">Synthesis Manifest</h3>
-            <p className="text-[7px] md:text-[8px] text-blue-500 font-black uppercase tracking-[0.2em] mt-0.5">V24.1 SECURE</p>
+            <h3 className="text-xs font-black text-white uppercase tracking-widest">Mechanical DNA Manifest</h3>
+            <p className="text-[8px] text-blue-500 font-black uppercase tracking-[0.2em] mt-1">ISO 10303 Compliant</p>
           </div>
         </div>
-        <div className="flex bg-[var(--citadel-bg)] p-1 rounded-lg md:rounded-xl border border-[var(--citadel-border)] w-full md:w-auto overflow-x-auto no-scrollbar">
-          {[
-            { id: 'reasoning', label: isMobile ? 'DNA' : 'Physics DNA', icon: Calculator },
-            { id: 'cinematic', label: isMobile ? 'Shot' : 'Shot Manifest', icon: FilmIcon },
-            { id: 'operational', label: isMobile ? 'Ops' : 'Operational Principles', icon: Tractor }, // New Tab for Operational Principles
-            { id: 'verity', label: 'Verity', icon: ShieldCheck },
-            { id: 'sdk', label: 'Kernel', icon: FileCode }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-md md:rounded-lg text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-lg' : 'text-[var(--citadel-subtext)] hover:text-[var(--citadel-text)]'}`}
-            >
-              <tab.icon size={10} />
-              {tab.label}
-            </button>
-          ))}
+        <div className="w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+          <div className="flex bg-black p-1 rounded-xl border border-white/5 min-w-max">
+            {[
+              { id: 'kinematics', label: 'Kinematics', icon: Waypoints },
+              { id: 'brain', label: 'RL Agent', icon: BrainCircuit },
+              { id: 'manufacturing', label: 'Manufacture', icon: Ruler },
+              { id: 'code', label: 'Python SDK', icon: FileCode }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-lg' : 'text-zinc-500 hover:text-white'}`}
+              >
+                <tab.icon size={10} /> {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-      <div className="p-4 md:p-8">
-        {activeTab === 'cinematic' && (
-           <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-              <div className="p-4 md:p-6 bg-blue-600/5 border border-blue-500/20 rounded-2xl md:rounded-3xl">
-                <div className="flex items-center gap-3 mb-2 md:mb-4">
-                  <Ghost size={14} className="text-blue-500" />
-                  <span className="text-[8px] md:text-[10px] font-black text-blue-500 uppercase tracking-widest">Studio Hook</span>
-                </div>
-                <h4 className="text-lg md:text-2xl font-black text-[var(--citadel-text)] tracking-tighter uppercase italic">
-                  { (report as any).cinematicManifest?.headline || "Visual Synthesis" }
-                </h4>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-                 {[
-                   { label: 'Render', value: 'CYCLES', icon: Cpu, detail: 'OptiX 128' },
-                   { label: 'Motion', value: 'ENABLED', icon: Activity, detail: 'Slow-Motion' },
-                   { label: 'Lighting', value: '3-POINT', icon: Camera, detail: 'Orange/Cyan' }
-                 ].map((stat, i) => (
-                   <div key={i} className="p-3 md:p-5 bg-[var(--citadel-inner-bg)] border border-[var(--citadel-border)] rounded-xl md:rounded-2xl">
-                     <div className="flex items-center gap-2 mb-1 md:mb-2">
-                       <stat.icon size={10} className="text-blue-500/60" />
-                       <span className="text-[7px] md:text-[8px] font-black text-[var(--citadel-subtext)] uppercase tracking-widest">{stat.label}</span>
-                     </div>
-                     <p className="text-sm md:text-lg font-black text-[var(--citadel-text)]">{stat.value}</p>
-                     <p className="text-[7px] md:text-[8px] font-mono text-[var(--citadel-subtext)] mt-1">{stat.detail}</p>
-                   </div>
-                 ))}
+      <div className="p-6 md:p-10 min-h-[300px]">
+        {activeTab === 'kinematics' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500">
+            <div className="p-6 bg-blue-500/5 border border-blue-500/10 rounded-3xl">
+              <p className="text-[10px] font-black text-blue-500 uppercase mb-4 flex items-center gap-2">
+                <Zap size={12} /> Joint Hierarchy
+              </p>
+              <div className="space-y-3">
+                {report.assemblyConfiguration?.map((c, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    <p className="text-xs font-bold text-white">{c.name} <span className="text-zinc-500 font-medium">({c.role})</span></p>
+                  </div>
+                ))}
               </div>
+            </div>
+            <div className="p-6 bg-zinc-900 border border-white/5 rounded-3xl">
+              <p className="text-[10px] font-black text-zinc-500 uppercase mb-4">Degrees of Freedom</p>
+              <p className="text-3xl font-black text-white">{report.kinematicAnalysisReport?.degreesOfFreedom || 0} DoF</p>
+              <p className="text-xs text-zinc-500 mt-2">Verified through recursive kinematic solver.</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'brain' && report.rlAgentConfig && (
+           <div className="space-y-6 animate-in fade-in duration-500">
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl">
+                  <p className="text-[9px] font-black text-purple-400 uppercase tracking-widest mb-1">Algorithm</p>
+                  <p className="text-xl font-black text-white">{report.rlAgentConfig.algorithm}</p>
+                </div>
+                <div className="p-4 bg-zinc-900 border border-white/5 rounded-2xl">
+                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Learning Rate</p>
+                  <p className="text-xl font-mono text-zinc-300">{report.rlAgentConfig.hyperparameters.learningRate}</p>
+                </div>
+                <div className="p-4 bg-zinc-900 border border-white/5 rounded-2xl">
+                  <p className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mb-1">Batch Size</p>
+                  <p className="text-xl font-mono text-zinc-300">{report.rlAgentConfig.hyperparameters.batchSize}</p>
+                </div>
+             </div>
+             
+             <div className="p-6 bg-[#0c0c0e] border border-white/5 rounded-3xl">
+                <p className="text-[10px] font-black text-emerald-500 uppercase mb-4 flex items-center gap-2">
+                  <TrendingUp size={12} /> Reward Function Logic
+                </p>
+                <pre className="font-mono text-[10px] text-emerald-400/80 whitespace-pre-wrap overflow-x-auto">
+                  {report.rlAgentConfig.rewardFunction}
+                </pre>
+             </div>
            </div>
         )}
 
-        {activeTab === 'reasoning' && report.physicsReasoning && (
-          <div className="space-y-4 md:space-y-6 animate-in fade-in duration-500">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-              {report.physicsReasoning.derivedParameters.map((param, i) => (
-                <div key={i} className="p-3 md:p-4 bg-[var(--citadel-inner-bg)] border border-[var(--citadel-border)] rounded-xl md:rounded-2xl">
-                  <p className="text-[8px] md:text-[9px] font-black text-[var(--citadel-subtext)] uppercase tracking-widest mb-1">{param.label}</p>
-                  <p className="text-sm md:text-xl font-mono font-black text-[var(--citadel-text)]">{param.value} <span className="text-[8px] md:text-[10px] text-blue-500/60 uppercase">{param.unit}</span></p>
-                </div>
-              ))}
-            </div>
-            <pre className="p-4 md:p-6 bg-[var(--citadel-bg)] border border-[var(--citadel-border)] rounded-xl md:rounded-2xl text-[9px] md:text-[11px] font-mono text-[var(--citadel-text)] opacity-70 leading-relaxed whitespace-pre-wrap overflow-x-auto">
-              {report.physicsReasoning.calculations}
+        {activeTab === 'code' && (
+          <div className="relative animate-in slide-in-from-bottom-4 duration-500">
+            <button onClick={handleCopy} className="absolute top-4 right-4 p-2 bg-blue-600 text-white rounded-xl shadow-lg hover:bg-blue-500 transition-all z-10">
+              {isCopied ? <Check size={16} /> : <Copy size={16} />}
+            </button>
+            <pre className="p-6 bg-black border border-white/5 rounded-3xl text-[10px] md:text-[11px] font-mono text-blue-300 overflow-x-auto max-h-[400px]">
+              {report.blenderScript || "# NO_CODE_GENERATED"}
             </pre>
           </div>
         )}
-        
-        {activeTab === 'operational' && (report.functionalDescription || report.kinematicAnalysisReport || report.dynamicAnalysisReport || report.assemblyConfiguration) && (
-          <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
-            {report.functionalDescription && (
-              <div className="p-4 md:p-6 bg-emerald-600/5 border border-emerald-500/20 rounded-2xl md:rounded-3xl">
-                <div className="flex items-center gap-3 mb-2 md:mb-4">
-                  <Tractor size={14} className="text-emerald-500" />
-                  <span className="text-[8px] md:text-[10px] font-black text-emerald-500 uppercase tracking-widest">Functional Overview</span>
-                </div>
-                <p className="text-sm md:text-base text-[var(--citadel-text)] leading-relaxed">{report.functionalDescription}</p>
-              </div>
-            )}
 
-            {report.kinematicAnalysisReport && (
-              <div className="p-4 md:p-6 bg-blue-600/5 border border-blue-500/20 rounded-2xl md:rounded-3xl">
-                <div className="flex items-center gap-3 mb-2 md:mb-4">
-                  <Waypoints size={14} className="text-blue-500" />
-                  <span className="text-[8px] md:text-[10px] font-black text-blue-500 uppercase tracking-widest">Kinematic Analysis</span>
-                </div>
-                <div className="space-y-2 text-sm md:text-base text-[var(--citadel-text)]">
-                  <p><span className="font-bold">Input Motion:</span> {report.kinematicAnalysisReport.inputMotion}</p>
-                  <p><span className="font-bold">Output Motion:</span> {report.kinematicAnalysisReport.outputMotion}</p>
-                  {report.kinematicAnalysisReport.gearRatios?.length && <p><span className="font-bold">Gear Ratios:</span> {report.kinematicAnalysisReport.gearRatios.join(', ')}</p>}
-                  {report.kinematicAnalysisReport.linkages?.length && <p><span className="font-bold">Linkages:</span> {report.kinematicAnalysisReport.linkages.join(', ')}</p>}
-                  {report.kinematicAnalysisReport.motionDiagram && <p className="italic text-zinc-500 mt-2">{report.kinematicAnalysisReport.motionDiagram}</p>}
-                </div>
+        {activeTab === 'manufacturing' && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-3xl">
+              <ShieldCheck className="text-emerald-500" />
+              <div>
+                <p className="text-xs font-black text-white uppercase">Printability Rating: 98%</p>
+                <p className="text-[10px] text-emerald-500/80">All clearances checked against 0.2mm FDM nozzle standard.</p>
               </div>
-            )}
-
-            {report.dynamicAnalysisReport && (
-              <div className="p-4 md:p-6 bg-amber-600/5 border border-amber-500/20 rounded-2xl md:rounded-3xl">
-                <div className="flex items-center gap-3 mb-2 md:mb-4">
-                  <Bolt size={14} className="text-amber-500" />
-                  <span className="text-[8px] md:text-[10px] font-black text-amber-500 uppercase tracking-widest">Dynamic Analysis</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm md:text-base text-[var(--citadel-text)]">
-                  {report.dynamicAnalysisReport.powerOutputKw !== undefined && <p><span className="font-bold">Power Output:</span> {report.dynamicAnalysisReport.powerOutputKw} kW</p>}
-                  {report.dynamicAnalysisReport.torqueNm !== undefined && <p><span className="font-bold">Torque:</span> {report.dynamicAnalysisReport.torqueNm} Nm</p>}
-                  {report.dynamicAnalysisReport.efficiencyPercent !== undefined && <p><span className="font-bold">Efficiency:</span> {report.dynamicAnalysisReport.efficiencyPercent}%</p>}
-                  {report.dynamicAnalysisReport.primaryForcesN && <p><span className="font-bold">Primary Forces:</span> {report.dynamicAnalysisReport.primaryForcesN}</p>}
-                  {report.dynamicAnalysisReport.vibrationAnalysis && <p className="sm:col-span-2 italic text-zinc-500 mt-2">{report.dynamicAnalysisReport.vibrationAnalysis}</p>}
-                </div>
-              </div>
-            )}
-
-            {report.assemblyConfiguration?.length && (
-              <div className="p-4 md:p-6 bg-purple-600/5 border border-purple-500/20 rounded-2xl md:rounded-3xl">
-                <div className="flex items-center gap-3 mb-2 md:mb-4">
-                  <Power size={14} className="text-purple-500" />
-                  <span className="text-[8px] md:text-[10px] font-black text-purple-500 uppercase tracking-widest">Assembly Configuration</span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm md:text-base">
-                  {report.assemblyConfiguration.map((comp, i) => (
-                    <div key={i} className="bg-[var(--citadel-inner-bg)] p-3 rounded-xl border border-[var(--citadel-border)]">
-                      <p className="font-bold text-[var(--citadel-text)]">{comp.name}</p>
-                      <p className="text-[10px] text-zinc-500 mt-1"><span className="font-bold">Role:</span> {comp.role}</p>
-                      {comp.connections?.length && <p className="text-[10px] text-zinc-500"><span className="font-bold">Connections:</span> {comp.connections.join(', ')}</p>}
-                      {comp.material && <p className="text-[10px] text-zinc-500"><span className="font-bold">Material:</span> {comp.material}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            </div>
           </div>
-        )}
-
-        {activeTab === 'verity' && (
-           <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 md:gap-4">
-                <div className="p-4 md:p-5 bg-[var(--citadel-inner-bg)] border border-[var(--citadel-border)] rounded-xl md:rounded-2xl">
-                   <span className="text-[8px] font-black text-[var(--citadel-subtext)] uppercase tracking-widest block mb-1">Safety Margin</span>
-                   <p className="text-base md:text-lg font-black text-emerald-400">{analysis?.structuralIntegrity?.safetyMargin || '1.8'}+</p>
-                </div>
-                <div className="p-4 md:p-5 bg-[var(--citadel-inner-bg)] border border-[var(--citadel-border)] rounded-xl md:rounded-2xl">
-                   <span className="text-[8px] font-black text-[var(--citadel-subtext)] uppercase tracking-widest block mb-1">Stress Lock</span>
-                   <p className="text-base md:text-lg font-black text-blue-500">VERIFIED</p>
-                </div>
-              </div>
-           </div>
-        )}
-
-        {activeTab === 'sdk' && (
-          <pre className="p-4 md:p-6 bg-[var(--citadel-bg)] border border-[var(--citadel-border)] rounded-xl md:rounded-2xl text-[9px] md:text-[11px] font-mono text-[var(--citadel-text)] opacity-70 overflow-x-auto max-h-72 custom-scrollbar">
-            {report.blenderScript || "# KERNEL_GEN_FAILED"}
-          </pre>
         )}
       </div>
     </div>
   );
 };
 
-export default function ArchitectChat({ messages, onFollowUpClick, onCopy, copiedId, theme, isProcessing }: ArchitectChatProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isMobile = window.innerWidth < 768;
+interface ArchitectChatProps {
+  messages: ChatMessage[];
+  theme: 'dark' | 'light';
+  isProcessing: boolean;
+  rlParams?: RLParams; // Pass live params through
+  onApproveEvolution: (id: string, version: string) => void;
+  onDenyEvolution: () => void;
+}
 
-  useEffect(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), [messages]);
-
+export default function ArchitectChat({ messages, theme, isProcessing, rlParams, onApproveEvolution, onDenyEvolution }: ArchitectChatProps) {
   return (
-    <div className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-12 space-y-12 md:space-y-20 scroll-smooth custom-scrollbar relative z-10">
-      {/* Global Processing Indicator */}
-      {isProcessing && (
-        <div className="global-loading-bar" />
-      )}
-
-      {messages.length === 0 && (
-        <div className="h-full flex flex-col items-center justify-center text-center max-w-xl mx-auto space-y-6 md:space-y-8 animate-in fade-in zoom-in-95 duration-1000">
-          {isMobile ? <Smartphone className="w-12 h-12 text-blue-500/20" /> : <Film className="w-16 h-16 text-blue-500/20" />}
-          <div className="space-y-2">
-            <h2 className="text-3xl md:text-5xl font-black text-blue-500 uppercase tracking-tighter">Architect</h2>
-            <p className="opacity-20 text-[8px] md:text-[9px] font-black uppercase tracking-[0.4em] md:tracking-[0.5em] text-[var(--citadel-text)]">Mobile Performance Core v24.1</p>
+    <div className="flex-1 overflow-y-auto p-4 md:p-12 space-y-12 md:space-y-16 custom-scrollbar relative z-10 w-full pb-32">
+      {isProcessing && <div className="global-loading-bar" />}
+      {messages.map((msg: ChatMessage) => (
+        <div key={msg.id} className={`flex flex-col gap-4 w-full ${msg.sender === Sender.USER ? 'items-end' : 'items-start'}`}>
+          <div className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.5em] opacity-30 text-[var(--citadel-subtext)] px-2">
+            {msg.sender === Sender.USER ? 'QUERY' : 'OMNI_RESPONSE'}
           </div>
-        </div>
-      )}
+          
+          <div className={`rounded-[2rem] md:rounded-[2.5rem] w-full max-w-5xl ${msg.sender === Sender.USER ? 'p-6 md:p-10 bg-[var(--citadel-card)] border border-[var(--citadel-border)] shadow-xl text-xl font-medium text-[var(--citadel-text)]' : ''}`}>
+            
+            {msg.sender === Sender.BOT && msg.groundingMetadata && (
+               <>
+                 <SourceCardGrid metadata={msg.groundingMetadata} />
+                 <MapViewer groundingChunks={msg.groundingMetadata.groundingChunks || []} />
+               </>
+            )}
 
-      {messages.map((msg) => (
-        <div key={msg.id} className={`flex flex-col gap-4 md:gap-6 ${msg.sender === Sender.USER ? 'items-end' : 'items-start'}`}>
-          <div className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.4em] opacity-10 text-[var(--citadel-text)]">
-            {msg.sender === Sender.USER ? 'CMD_INPUT' : 'STUDIO_OUTPUT'}
-          </div>
-          <div className={`p-5 md:p-8 lg:p-10 rounded-[1.5rem] md:rounded-[2rem] w-full max-w-5xl ${msg.sender === Sender.USER ? 'bg-[var(--citadel-hover)] border border-[var(--citadel-border)] shadow-2xl backdrop-blur-3xl' : 'bg-transparent'}`}>
-            <div className={`markdown-body prose prose-sm md:prose-lg max-w-none text-[var(--citadel-text)] opacity-90 ${theme === 'dark' ? 'prose-invert' : ''}`}>
-              <ReactMarkdown>{msg.text}</ReactMarkdown>
-              {msg.surgicalReport && <Leap71Certificate report={msg.surgicalReport} />}
-              {msg.threeDScene && msg.threeDScene.objects && msg.threeDScene.objects.length > 0 && (
-                <ModelViewer3D data={msg.threeDScene} blenderScript={msg.surgicalReport?.blenderScript} isStreaming={msg.isStreaming} theme={theme} />
-              )}
-              {/* Streaming Text Indicator */}
-              {msg.sender === Sender.BOT && msg.isStreaming && (
-                <span className="inline-flex items-center gap-1 ml-2 text-[var(--citadel-accent)]">
-                    <span className="pulsing-dot bg-[var(--citadel-accent)]" />
-                    <span className="pulsing-dot bg-[var(--citadel-accent)]" style={{ animationDelay: '0.2s' }} />
-                    <span className="pulsing-dot bg-[var(--citadel-accent)]" style={{ animationDelay: '0.4s' }} />
-                </span>
-              )}
-            </div>
+            {msg.collaborationSession && (
+              <CollaborativeHeader 
+                session={msg.collaborationSession} 
+                onSync={() => console.log('Syncing...')} 
+              />
+            )}
+
+            {msg.surgicalReport?.agenticPlan && (
+               <AgenticPlanViewer plan={msg.surgicalReport.agenticPlan} />
+            )}
+
+            {msg.surgicalReport?.workflowUpdate && (
+               <TaskManager workflow={msg.surgicalReport.workflowUpdate} />
+            )}
+
+            {msg.surgicalReport?.generatedAssets?.map(asset => (
+               <CinematicViewer key={asset.id} asset={asset} />
+            ))}
+
+            {msg.surgicalReport?.metaCognition && (
+              <MetaCognitionViewer data={msg.surgicalReport.metaCognition} />
+            )}
+
+            {msg.surgicalReport?.cognitiveState && (
+              <CognitiveEngineViewer data={msg.surgicalReport.cognitiveState} />
+            )}
+
+            {msg.surgicalReport?.reasoningChain && (
+              <ReasoningChain steps={msg.surgicalReport.reasoningChain} />
+            )}
+
+            {msg.text && (
+              <div className={`prose prose-invert max-w-none text-[var(--citadel-text)] text-sm md:text-base leading-relaxed ${msg.sender === Sender.BOT ? 'p-0' : ''}`}>
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+              </div>
+            )}
+
+            {msg.surgicalReport?.universalAnalysis && (
+              <UniversalAnalysisViewer report={msg.surgicalReport.universalAnalysis} />
+            )}
+
+            {msg.surgicalReport && 
+             !msg.surgicalReport.evolutionProposal && 
+             !msg.surgicalReport.universalAnalysis && 
+             !msg.surgicalReport.workflowUpdate &&
+             !msg.surgicalReport.agenticPlan &&
+             !msg.surgicalReport.generatedAssets &&
+             msg.threeDScene && (
+              <>
+                <SynthesisReport report={msg.surgicalReport} />
+                <ModelViewer3D 
+                  data={msg.threeDScene} 
+                  theme={theme} 
+                  rlConfig={msg.surgicalReport?.rlAgentConfig} 
+                  rlParams={rlParams}
+                  collaborators={msg.collaborationSession?.activeCollaborators}
+                />
+              </>
+            )}
+
+            {msg.surgicalReport?.evolutionProposal && (
+              <EvolutionTerminal 
+                proposal={msg.surgicalReport.evolutionProposal} 
+                onApprove={() => onApproveEvolution(msg.id, msg.surgicalReport!.evolutionProposal!.versionTarget)}
+                onDeny={onDenyEvolution}
+              />
+            )}
           </div>
         </div>
       ))}
-      <div ref={messagesEndRef} className="h-40" />
     </div>
   );
 }

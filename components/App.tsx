@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
-  Paperclip, Sun, Moon, Send, Menu, X, FlaskConical, Loader2, Zap, Search, Brain, Globe, Users, Sliders, ShieldCheck
+  Paperclip, Sun, Moon, Send, Menu, X, FlaskConical, Loader2, Zap, Search, Brain, Globe, Users, Sliders
 } from 'lucide-react';
 import { generateAgentResponse } from './services/geminiService.ts';
 import { ChatMessage, Sender, AgentAction, ChatSession, SurgicalReport, ThreeDSceneData, KnowledgeNode, CollaborationSession, RLParams } from './types.ts';
@@ -12,7 +12,6 @@ import ArchitectChat from './components/ArchitectChat.tsx';
 import HistorySidebar from './components/HistorySidebar.tsx';
 import NeuralTrainingDeck from './components/NeuralTrainingDeck.tsx';
 import RLConfigPanel from './components/RLConfigPanel.tsx';
-import MetaAgentPanel from './components/MetaAgentPanel.tsx';
 
 export default function App() {
   const [input, setInput] = useState('');
@@ -39,9 +38,6 @@ export default function App() {
     entropyCoefficient: 0.01,
     rewardFunction: ''
   });
-  
-  // Watchdog (Meta Agent) State
-  const [showWatchdog, setShowWatchdog] = useState(false);
   
   // Collaboration State
   const [collabSession, setCollabSession] = useState<CollaborationSession | null>(null);
@@ -93,23 +89,6 @@ export default function App() {
       }]);
     }, 3000);
   };
-  
-  const handleOptimizeSystem = () => {
-    if (messages.length > 20) {
-      setMessages(prev => {
-        const preserved = prev.slice(-15);
-        return preserved;
-      });
-      addAction('system_maintenance', 'Optimized context memory window');
-    } else {
-      addAction('system_maintenance', 'System already at peak efficiency');
-    }
-  };
-
-  const handleClearSystemErrors = () => {
-    setMessages(prev => prev.filter(m => !m.isError));
-    addAction('system_maintenance', 'Purged system error logs');
-  };
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing || isRebooting) return;
@@ -124,10 +103,11 @@ export default function App() {
     try {
       const responseStream = await generateAgentResponse(
         input, 
+        [], 
         messages, 
         mode, 
         knowledgeBase,
-        rlParams 
+        rlParams // Pass user defined config
       );
       const botMsgId = Date.now().toString();
       setMessages(prev => [...prev, { id: botMsgId, sender: Sender.BOT, text: '', timestamp: new Date(), isStreaming: true }]);
@@ -141,13 +121,9 @@ export default function App() {
           setAvatarState('speaking');
         }
 
-        if (chunk.candidates?.[0]?.groundingMetadata) {
-           const metadata = chunk.candidates[0].groundingMetadata;
-           setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, groundingMetadata: metadata } : m));
-        }
-
         const part = chunk.candidates?.[0]?.content?.parts?.find(p => p.functionCall);
         
+        // Handle Collaboration Orchestration
         if (part?.functionCall?.name === 'orchestrate_collaboration_session') {
            const args = part.functionCall.args as any;
            const newCollab: CollaborationSession = {
@@ -157,15 +133,14 @@ export default function App() {
                { id: 'c2', name: 'Marcus', color: '#3b82f6', status: 'focus', cursorPos: [-1,1,2] }
              ],
              syncStatus: args.sessionUpdate.syncStatus || 'synced',
-             masterNodeId: botMsgId,
-             version: (collabSession?.version || 0) + 1,
-             lastModified: new Date()
+             masterNodeId: botMsgId
            };
            setCollabSession(newCollab);
            setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, collaborationSession: newCollab } : m));
            addAction('network_sync', `Collaboration: ${args.sessionUpdate.assignedTask}`);
         }
 
+        // Handle Universal Analysis
         if (part?.functionCall?.name === 'perform_universal_analysis') {
            const args = part.functionCall.args as any;
            const report: SurgicalReport = {
@@ -180,6 +155,7 @@ export default function App() {
            setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, surgicalReport: report } : m));
         }
 
+        // Handle Industrial Synthesis
         if (part?.functionCall?.name === 'execute_industrial_synthesis') {
           const args = part.functionCall.args as any;
           const report: SurgicalReport = {
@@ -198,10 +174,7 @@ export default function App() {
             assemblyConfiguration: args.assemblyData.objects.map((o: any) => ({ name: o.id, role: o.type })),
             rlAgentConfig: args.rlAgentConfig
           };
-          const scene: ThreeDSceneData = { 
-            objects: args.assemblyData.objects,
-            constraints: args.constraints 
-          };
+          const scene: ThreeDSceneData = { objects: args.assemblyData.objects };
           
           setMessages(prev => prev.map(m => m.id === botMsgId ? { ...m, surgicalReport: report, threeDScene: scene, collaborationSession: collabSession || undefined } : m));
         }
@@ -219,6 +192,7 @@ export default function App() {
 
   const SidebarContent = () => (
     <div className="h-full flex flex-col gap-10 p-8 overflow-y-auto custom-scrollbar relative">
+       {/* Theme Toggle */}
        <div className="absolute top-4 right-4 z-50">
           <button
             onClick={() => setTheme(prev => prev === 'dark' ? 'light' : 'dark')}
@@ -254,10 +228,7 @@ export default function App() {
   );
 
   return (
-    <div 
-      style={{ width: '100%', height: '100%', overflow: 'hidden' }}
-      className="flex bg-[var(--citadel-bg)] text-[var(--citadel-text)] font-inter relative transition-colors duration-500"
-    >
+    <div className="flex h-screen w-screen bg-[var(--citadel-bg)] text-[var(--citadel-text)] font-inter overflow-hidden relative transition-colors duration-500">
       {isRebooting && (
         <div className="absolute inset-0 z-[60] bg-black flex flex-col items-center justify-center animate-in fade-in duration-300">
            <Zap size={64} className="text-purple-500 animate-bounce mb-8" />
@@ -285,16 +256,6 @@ export default function App() {
           config={rlParams}
           onChange={setRlParams}
           onClose={() => setShowRLConfig(false)}
-        />
-      )}
-
-      {/* Meta Agent Watchdog Panel */}
-      {showWatchdog && (
-        <MetaAgentPanel 
-          messages={messages}
-          onClose={() => setShowWatchdog(false)}
-          onOptimize={handleOptimizeSystem}
-          onClearErrors={handleClearSystemErrors}
         />
       )}
 
@@ -351,13 +312,6 @@ export default function App() {
                 className={`flex-shrink-0 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all bg-white/5 text-zinc-500 hover:text-[var(--citadel-text)] hover:bg-white/10 ${showRLConfig ? 'text-cyan-400 border border-cyan-500/30' : ''}`}
               >
                 <Sliders size={12} /> Tune Agent
-              </button>
-
-              <button 
-                onClick={() => setShowWatchdog(!showWatchdog)}
-                className={`flex-shrink-0 flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all bg-white/5 text-zinc-500 hover:text-[var(--citadel-text)] hover:bg-white/10 ${showWatchdog ? 'text-emerald-400 border border-emerald-500/30' : ''}`}
-              >
-                <ShieldCheck size={12} /> Watchdog
               </button>
             </div>
 

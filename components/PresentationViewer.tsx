@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Maximize2, X, Layout, Play } from 'lucide-react';
-import { PresentationData, Slide } from '../types';
+import { PresentationData, Slide } from '../types.ts';
 
 interface PresentationViewerProps {
   data: PresentationData;

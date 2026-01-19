@@ -1,9 +1,8 @@
 {
-  "name": "OMNIAGENT",
-  "description": "Advanced proactive intelligence architecture with multi-domain synthesis and Ghost-Hash memory grounding.",
+  "name": "OMNIAGENT_INDUSTRIAL",
+  "description": "High-fidelity mechanical synthesis and kinematic simulation engine.",
   "requestFramePermissions": [
     "microphone",
-    "camera",
     "display-capture"
   ]
 }

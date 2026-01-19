@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ShieldAlert, CheckCircle, XCircle, Terminal, Box, Play, Trash2, Zap, ArrowRight, ShieldCheck, AlertTriangle } from 'lucide-react';
-import { ApprovalRequest } from '../types';
+import { ApprovalRequest } from '../types.ts';
 
 interface ApprovalRequestCardProps {
   request: ApprovalRequest;

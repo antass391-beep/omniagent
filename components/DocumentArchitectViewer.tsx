@@ -1,8 +1,7 @@
 
 import React from 'react';
-/* Added Activity to the imports to fix the missing icon error on line 123 */
 import { FileText, Wand2, Image as ImageIcon, ChevronRight, CheckCircle2, AlertCircle, Scissors, PlusSquare, Eraser, Activity } from 'lucide-react';
-import { DocumentArchitectData } from '../types';
+import { DocumentArchitectData } from '../types.ts';
 
 interface DocumentArchitectViewerProps {
   data: DocumentArchitectData;
